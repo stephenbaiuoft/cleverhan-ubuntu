@@ -1,0 +1,63 @@
+/home/stephen/anaconda3/envs/python35-tf-gpu/bin/python /home/stephen/PycharmProjects/CleverHan/cleverhan.py
+2017-10-24 17:30:29.141934: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-24 17:30:29.141954: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-24 17:30:29.141958: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-24 17:30:29.141962: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-24 17:30:29.141965: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
+2017-10-24 17:30:29.343334: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:893] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2017-10-24 17:30:29.343658: I tensorflow/core/common_runtime/gpu/gpu_device.cc:955] Found device 0 with properties:
+name: GeForce GT 755M
+major: 3 minor: 0 memoryClockRate (GHz) 1.0195
+pciBusID 0000:01:00.0
+Total memory: 1.95GiB
+Free memory: 1.68GiB
+2017-10-24 17:30:29.343672: I tensorflow/core/common_runtime/gpu/gpu_device.cc:976] DMA: 0
+2017-10-24 17:30:29.343677: I tensorflow/core/common_runtime/gpu/gpu_device.cc:986] 0:   Y
+2017-10-24 17:30:29.343685: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1045] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GT 755M, pci bus id: 0000:01:00.0)
+Successfully downloaded train-images-idx3-ubyte.gz 9912422 bytes.
+Extracting /tmp/train-images-idx3-ubyte.gz
+Successfully downloaded train-labels-idx1-ubyte.gz 28881 bytes.
+Extracting /tmp/train-labels-idx1-ubyte.gz
+Successfully downloaded t10k-images-idx3-ubyte.gz 1648877 bytes.
+Extracting /tmp/t10k-images-idx3-ubyte.gz
+Successfully downloaded t10k-labels-idx1-ubyte.gz 4542 bytes.
+Extracting /tmp/t10k-labels-idx1-ubyte.gz
+X_train shape: (60000, 28, 28, 1)
+X_test shape: (10000, 28, 28, 1)
+[INFO 2017-10-24 17:31:51,025 cleverhans] Epoch 0 took 43.59587597846985 seconds
+Test accuracy on legitimate examples: 0.9887
+[INFO 2017-10-24 17:32:10,184 cleverhans] Epoch 1 took 18.179508924484253 seconds
+Test accuracy on legitimate examples: 0.9892
+[INFO 2017-10-24 17:32:29,307 cleverhans] Epoch 2 took 18.140565156936646 seconds
+Test accuracy on legitimate examples: 0.9916
+[INFO 2017-10-24 17:32:48,432 cleverhans] Epoch 3 took 18.134068727493286 seconds
+Test accuracy on legitimate examples: 0.9919
+[INFO 2017-10-24 17:33:07,458 cleverhans] Epoch 4 took 18.05338454246521 seconds
+Test accuracy on legitimate examples: 0.9928
+[INFO 2017-10-24 17:33:26,549 cleverhans] Epoch 5 took 18.067559003829956 seconds
+Test accuracy on legitimate examples: 0.9925
+[INFO 2017-10-24 17:33:27,524 cleverhans] Completed model training.
+Test accuracy on adversarial examples: 0.1183
+
+Repeating the process, using adversarial training
+[INFO 2017-10-24 17:34:14,027 cleverhans] Epoch 0 took 41.80561828613281 seconds
+Test accuracy on legitimate examples: 0.9749
+Test accuracy on adversarial examples: 0.8501
+[INFO 2017-10-24 17:35:00,009 cleverhans] Epoch 1 took 41.89093255996704 seconds
+Test accuracy on legitimate examples: 0.9893
+Test accuracy on adversarial examples: 0.9117
+[INFO 2017-10-24 17:35:46,656 cleverhans] Epoch 2 took 42.483909606933594 seconds
+Test accuracy on legitimate examples: 0.9917
+Test accuracy on adversarial examples: 0.9328
+[INFO 2017-10-24 17:36:33,854 cleverhans] Epoch 3 took 43.124016761779785 seconds
+Test accuracy on legitimate examples: 0.9919
+Test accuracy on adversarial examples: 0.9456
+[INFO 2017-10-24 17:37:21,720 cleverhans] Epoch 4 took 43.73881554603577 seconds
+Test accuracy on legitimate examples: 0.9909
+Test accuracy on adversarial examples: 0.9476
+[INFO 2017-10-24 17:38:09,868 cleverhans] Epoch 5 took 43.972994804382324 seconds
+Test accuracy on legitimate examples: 0.9922
+Test accuracy on adversarial examples: 0.9540
+[INFO 2017-10-24 17:38:13,986 cleverhans] Completed model training.
+
+Process finished with exit code 0
