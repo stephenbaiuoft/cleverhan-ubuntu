@@ -1,0 +1,3 @@
+Since net.weights[1] is rather verbose, let's just denote that matrix w.
+It's a matrix such that w_jk, w_jk is the weight for the ***connection*** between
+the kth neuron in the second layer, and the jth neuron in the third layer.

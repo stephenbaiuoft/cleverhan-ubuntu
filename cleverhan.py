@@ -15,6 +15,7 @@ import tensorflow as tf
 from tensorflow.python.platform import flags
 import logging
 
+
 from cleverhans.utils_mnist import data_mnist
 from cleverhans.utils_tf import model_train, model_eval
 from cleverhans.attacks import FastGradientMethod
@@ -74,6 +75,8 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
     # Use label smoothing
     assert Y_train.shape[1] == 10
     label_smooth = .1
+    # this way, all the 9 zeroes -> 0.1/9 because
+    # the one-bit becomes 0.9
     Y_train = Y_train.clip(label_smooth / 9., 1. - label_smooth)
 
     # Define input TF placeholder
@@ -119,6 +122,7 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
         # graph
         fgsm = FastGradientMethod(model, sess=sess)
         adv_x = fgsm.generate(x, **fgsm_params)
+
         preds_adv = model.get_probs(adv_x)
 
         # Evaluate the accuracy of the MNIST model on adversarial examples
