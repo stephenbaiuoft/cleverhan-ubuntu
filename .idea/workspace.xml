@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="764eb37e-fdc0-4280-9b4e-f5945f52724a" name="Default" comment="">
-      <change type="MOVED" beforePath="$PROJECT_DIR$/test.txt" afterPath="$PROJECT_DIR$/debug_note.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fgsm_saliency.py" afterPath="$PROJECT_DIR$/fgsm_saliency.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,8 +16,8 @@
       <file leaf-file-name="fgsm_attack.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/fgsm_attack.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="234">
-              <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+            <state relative-caret-position="504">
+              <caret line="130" column="38" lean-forward="true" selection-start-line="130" selection-start-column="38" selection-end-line="130" selection-end-column="38" />
               <folding>
                 <element signature="e#265#303#0" expanded="true" />
               </folding>
@@ -40,8 +38,8 @@
       <file leaf-file-name="fgsm_saliency.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/fgsm_saliency.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="282" column="26" lean-forward="false" selection-start-line="282" selection-start-column="26" selection-end-line="282" selection-end-column="26" />
+            <state relative-caret-position="28">
+              <caret line="278" column="0" lean-forward="true" selection-start-line="278" selection-start-column="0" selection-end-line="278" selection-end-column="0" />
               <folding>
                 <element signature="e#265#303#0" expanded="true" />
               </folding>
@@ -49,10 +47,20 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="utils_tf.py" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/anaconda3/envs/python35-tf-gpu/bin/src/cleverhans/cleverhans/utils_tf.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1350">
+              <caret line="90" column="53" lean-forward="true" selection-start-line="90" selection-start-column="53" selection-end-line="90" selection-end-column="53" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/anaconda3/envs/python35-tf-gpu/bin/src/cleverhans/cleverhans/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="169">
+            <state relative-caret-position="882">
               <caret line="49" column="8" lean-forward="false" selection-start-line="49" selection-start-column="8" selection-end-line="49" selection-end-column="8" />
               <folding />
             </state>
@@ -74,8 +82,8 @@
       <file leaf-file-name="attacks.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/anaconda3/envs/python35-tf-gpu/bin/src/cleverhans/cleverhans/attacks.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="446">
-              <caret line="509" column="60" lean-forward="true" selection-start-line="509" selection-start-column="12" selection-end-line="509" selection-end-column="60" />
+            <state relative-caret-position="4265">
+              <caret line="473" column="23" lean-forward="false" selection-start-line="473" selection-start-column="6" selection-end-line="473" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -122,6 +130,7 @@
       <find>clean_train_adv_eval</find>
       <find>model_train</find>
       <find>testing</find>
+      <find>jsma</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -362,8 +371,8 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32903227" sideWeight="0.49764943" order="4" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29604518" sideWeight="0.5" order="5" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3279396" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2824632" sideWeight="0.5010074" order="8" side_tool="false" content_ui="tabs" x="55" y="305" width="1535" height="262" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3266399" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23828648" sideWeight="0.5010074" order="8" side_tool="false" content_ui="tabs" x="55" y="305" width="1535" height="262" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.40696117" sideWeight="0.49899262" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33868808" sideWeight="0.49771988" order="9" side_tool="false" content_ui="tabs" x="609" y="399" width="766" height="271" />
@@ -742,14 +751,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/anaconda3/envs/python35-tf-gpu/bin/src/cleverhans/cleverhans/utils_tf.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="313">
-          <caret line="81" column="78" lean-forward="true" selection-start-line="81" selection-start-column="78" selection-end-line="81" selection-end-column="78" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Cleverhans Output/fgsm_y_output.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="558">
@@ -791,20 +792,46 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TensorFlow_Tutorial/tf_estimator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="19" column="36" lean-forward="false" selection-start-line="19" selection-start-column="36" selection-end-line="19" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/fgsm_attack.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="234">
-          <caret line="70" column="0" lean-forward="false" selection-start-line="70" selection-start-column="0" selection-end-line="70" selection-end-column="0" />
+        <state relative-caret-position="504">
+          <caret line="130" column="38" lean-forward="true" selection-start-line="130" selection-start-column="38" selection-end-line="130" selection-end-column="38" />
           <folding>
             <element signature="e#265#303#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/debug_note.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/anaconda3/envs/python35-tf-gpu/bin/src/cleverhans/cleverhans/utils_tf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1350">
+          <caret line="90" column="53" lean-forward="true" selection-start-line="90" selection-start-column="53" selection-end-line="90" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$USER_HOME$/anaconda3/envs/python35-tf-gpu/bin/src/cleverhans/cleverhans/attacks.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="446">
-          <caret line="509" column="60" lean-forward="true" selection-start-line="509" selection-start-column="12" selection-end-line="509" selection-end-column="60" />
+        <state relative-caret-position="4265">
+          <caret line="473" column="23" lean-forward="false" selection-start-line="473" selection-start-column="6" selection-end-line="473" selection-end-column="23" />
           <folding />
         </state>
       </provider>
@@ -819,36 +846,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TensorFlow_Tutorial/tf_estimator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="19" column="36" lean-forward="false" selection-start-line="19" selection-start-column="36" selection-end-line="19" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/anaconda3/envs/python35-tf-gpu/bin/src/cleverhans/cleverhans/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
+        <state relative-caret-position="882">
           <caret line="49" column="8" lean-forward="false" selection-start-line="49" selection-start-column="8" selection-end-line="49" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/debug_note.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="16" column="0" lean-forward="true" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/fgsm_saliency.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="282" column="26" lean-forward="false" selection-start-line="282" selection-start-column="26" selection-end-line="282" selection-end-column="26" />
+        <state relative-caret-position="28">
+          <caret line="278" column="0" lean-forward="true" selection-start-line="278" selection-start-column="0" selection-end-line="278" selection-end-column="0" />
           <folding>
             <element signature="e#265#303#0" expanded="true" />
           </folding>
