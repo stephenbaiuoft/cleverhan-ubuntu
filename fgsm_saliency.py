@@ -29,13 +29,16 @@ import os
 FLAGS = flags.FLAGS
 
 
-def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
+def minist_fgsm_saliency(train_start=0, train_end=60000, test_start=0,
                    test_end=10000, nb_epochs=6, batch_size=128,
                    learning_rate=0.001,
                    clean_train=True,
                    testing=False,
                    backprop_through_attack=False,
-                   nb_filters=64):
+                   nb_filters=64,
+                   nb_classes=10,
+                   source_samples=10,
+                         ):
     """
 
     MNIST cleverhans tutorial
@@ -98,11 +101,16 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
                    'clip_max': 1.}
     rng = np.random.RandomState([2017, 8, 30])
 
+
+    ###########################################################################
+    # Training the CNN model using TensorFlow: model --> base model
+    ###########################################################################
+    model = make_basic_cnn(nb_filters=nb_filters)
+    preds = model.get_probs(x)
     if clean_train:
         # omg -> creates a cnn model
-        model = make_basic_cnn(nb_filters=nb_filters)
-        preds = model.get_probs(x)
-
+        # model = make_basic_cnn(nb_filters=nb_filters)
+        # preds = model.get_probs(x)
         def evaluate():
             # Evaluate the accuracy of the MNIST model on legitimate test
             # examples
@@ -112,6 +120,8 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
             report.clean_train_clean_eval = acc
             assert X_test.shape[0] == test_end - test_start, X_test.shape
             print('Test accuracy on legitimate examples: %0.4f' % acc)
+
+        # training the basic model, using train_params
         model_train(sess, x, y, preds, X_train, Y_train, evaluate=evaluate,
                     args=train_params, rng=rng)
 
@@ -121,6 +131,12 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
             acc = model_eval(
                 sess, x, y, preds, X_train, Y_train, args=eval_params)
             report.train_clean_train_clean_eval = acc
+
+
+        ###########################################################################
+        # Generate FGSM Adversarial based on model, and
+        # Compute Base Model Accuracy
+        ###########################################################################
 
         # Initialize the Fast Gradient Sign Method (FGSM) attack object and
         # graph
@@ -134,16 +150,11 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
 
         #adv_x = fgsm.generate(x, **fgsm_params)
         adv_x = fgsm.generate(x, **fgsm_params_y)
-        print("the shape of adv_x is: ", tf.shape(adv_x))
-
         preds_adv = model.get_probs(adv_x)
-
-        print("the shape of preds_adv is: ", tf.shape(preds_adv))
-
         # Evaluate the accuracy of the MNIST model on adversarial examples
         eval_par = {'batch_size': batch_size}
         acc = model_eval(sess, x, y, preds_adv, X_test, Y_test, args=eval_par)
-        print('Test accuracy on adversarial examples: %0.4f\n' % acc)
+        print('Test accuracy on FGSM adversarial examples: %0.4f\n' % acc)
         report.clean_train_adv_eval = acc
 
         # Calculate training error
@@ -153,7 +164,15 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
                              Y_train, args=eval_par)
             report.train_clean_train_adv_eval = acc
 
-        print("Repeating the process, using adversarial training")
+        print("Repeating the process, using FGSM adversarial training")
+
+        ###########################################################################
+        # Generate Saliency Map Adversarial Example and
+        # Compute base model accuracy
+        ###########################################################################
+
+
+
     # Redefine TF model graph
     model_2 = make_basic_cnn(nb_filters=nb_filters)
     preds_2 = model_2(x)
