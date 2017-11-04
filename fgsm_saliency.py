@@ -23,14 +23,19 @@ from cleverhans_tutorials.tutorial_models import make_basic_cnn
 from cleverhans.utils import AccuracyReport, set_log_level
 from cleverhans.attacks import SaliencyMapMethod
 from six.moves import xrange
+from cleverhans.utils import other_classes, set_log_level
+from cleverhans.utils_tf import model_train, model_eval, model_argmax
 
 import os
 
 FLAGS = flags.FLAGS
 
 
-def minist_fgsm_saliency(train_start=0, train_end=60000, test_start=0,
-                   test_end=10000, nb_epochs=6, batch_size=128,
+# keep train_end same as source_samples
+# since both models are donig the same for now
+# epoch set to 2
+def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
+                   test_end=5, nb_epochs=2, batch_size=128,
                    learning_rate=0.001,
                    clean_train=True,
                    testing=False,
@@ -107,6 +112,8 @@ def minist_fgsm_saliency(train_start=0, train_end=60000, test_start=0,
     ###########################################################################
     model = make_basic_cnn(nb_filters=nb_filters)
     preds = model.get_probs(x)
+
+
     if clean_train:
         # omg -> creates a cnn model
         # model = make_basic_cnn(nb_filters=nb_filters)
@@ -121,6 +128,9 @@ def minist_fgsm_saliency(train_start=0, train_end=60000, test_start=0,
             assert X_test.shape[0] == test_end - test_start, X_test.shape
             print('Test accuracy on legitimate examples: %0.4f' % acc)
 
+        ###########################################################################
+        # MODEL Train!!!!!!!!!!!!
+        ###########################################################################
         # training the basic model, using train_params
         model_train(sess, x, y, preds, X_train, Y_train, evaluate=evaluate,
                     args=train_params, rng=rng)
@@ -168,12 +178,79 @@ def minist_fgsm_saliency(train_start=0, train_end=60000, test_start=0,
 
         ###########################################################################
         # Generate Saliency Map Adversarial Example and
-        # Compute base model accuracy
+        # Compute base model accuracy (only 10)
         ###########################################################################
+        print("Saliency Map Attack On The Base Model")
+        print('Crafting ' + str(source_samples) + ' * ' + str(nb_classes - 1) +
+              ' adversarial examples')
+
+        # Keep track of success (adversarial example classified in target)
+        results = np.zeros((nb_classes, source_samples), dtype='i')
+
+        # Instantiate a SaliencyMapMethod attack object --> modify y_target for each test_data again
+        jsma = SaliencyMapMethod(model, back='tf', sess=sess)
+        jsma_params = {'theta': 1., 'gamma': 0.1,
+                       'clip_min': 0., 'clip_max': 1.,
+                       'y_target': None}
+
+        # Keep track of success (adversarial example classified in target)
+        # Need this info to compute the success rate
+        results = np.zeros((nb_classes, source_samples), dtype='i')
+
+        # each sample will get 9 adversarial samples
+
+        # adv_x_set: place_holder for all the x variations
+        # correct_y_set: correct_y_output used for training
+
+        adv_x_set = None
+        correct_y_set = None
+        for sample_ind in xrange(0, source_samples):
+            print('--------------------------------------')
+            print('Saliency Attacking input %i/%i' % (sample_ind + 1, source_samples))
+            sample = X_test[sample_ind:(sample_ind + 1)]
+
+            current_class = int(np.argmax(Y_test[sample_ind]))
+            target_classes = other_classes(nb_classes, current_class)
+
+            # Loop over all target classes
+            for target in target_classes:
+                print('Generating adv. example for target class %i' % target)
+
+                # This call runs the Jacobian-based saliency map approach
+                one_hot_target = np.zeros((1, nb_classes), dtype=np.float32)
+                one_hot_target[0, target] = 1
+                jsma_params['y_target'] = one_hot_target
+
+                adv_x_np = jsma.generate_np(sample, **jsma_params)
+
+                # Add to adv_x_set, correct_y_set
+                if adv_x_set is not None:
+                    correct_y_set = np.stack(correct_y_set, Y_test[sample_ind])
+                    adv_x_set = np.stack((adv_x_np, adv_x_set))
+                else:
+                    correct_y_set = Y_test[sample_ind]
+                    adv_x_set = adv_x_np
+
+                # Check if success was achieved
+                res = int(model_argmax(sess, x, preds, adv_x_np) == target)
+
+                # Update the arrays for later analysis
+                results[target, sample_ind] = res
+
+        print('--------------------------------------')
+        # Compute the number of adversarial examples that were successfully found
+        nb_targets_tried = ((nb_classes - 1) * source_samples)
+        succ_rate = float(np.sum(results)) / nb_targets_tried
+        print('Avg. rate of successful Saliency adv. examples {0:.4f}'.format(succ_rate))
+        report.clean_train_adv_eval = 1. - succ_rate
+
+        # here we have successfully stacked up x_adversarial_set, y_correct_set
+        # these can be used to provide training to our model now
+        print("Checking x_adv_set shape: ", adv_x_set.shape)
+        print("Checking correct_y_set shape: ", correct_y_set.shape)
 
 
-
-    # Redefine TF model graph
+    # Redefine TF model FGSM!!!
     model_2 = make_basic_cnn(nb_filters=nb_filters)
     preds_2 = model_2(x)
     fgsm2 = FastGradientMethod(model_2, sess=sess)
@@ -202,10 +279,14 @@ def minist_fgsm_saliency(train_start=0, train_end=60000, test_start=0,
         print('Test accuracy on adversarial examples: %0.4f' % accuracy)
         report.adv_train_adv_eval = accuracy
 
-    # Perform and evaluate adversarial training
+    ###########################################################################
+    # MODEL Train for FGSM
+    ###########################################################################
+    # Perform and evaluate adversarial training with FSGM MODEL!!!
     model_train(sess, x, y, preds_2, X_train, Y_train,
                 predictions_adv=preds_2_adv, evaluate=evaluate_2,
                 args=train_params, rng=rng)
+
 
     # Calculate training errors
     if testing:
