@@ -184,9 +184,6 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
         print('Crafting ' + str(source_samples) + ' * ' + str(nb_classes - 1) +
               ' adversarial examples')
 
-        # Keep track of success (adversarial example classified in target)
-        results = np.zeros((nb_classes, source_samples), dtype='i')
-
         # Instantiate a SaliencyMapMethod attack object --> modify y_target for each test_data again
         jsma = SaliencyMapMethod(model, back='tf', sess=sess)
         jsma_params = {'theta': 1., 'gamma': 0.1,
@@ -269,17 +266,45 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
         print("x_training_saliency shape:", x_train_saliency.shape)
         print("y_training_saliency shape:", y_train_saliency.shape)
 
-        # now train saliency map model
-        model_saliency = make_basic_cnn(nb_filters=nb_filters)
-        preds_saliency = model_saliency(x_train_saliency)
+        # now construct model 3, define output -> input relationship tensor
+        model_3 = make_basic_cnn(nb_filters=nb_filters)
+        # define the x, the placeholder input - > preds_3 output
+        preds_3 = model_3(x)
+
+        jsma3 = SaliencyMapMethod(model_3, sess=sess)
 
         jsma_params = {'theta': 1., 'gamma': 0.1,
                        'clip_min': 0., 'clip_max': 1.,
                        'y_target': adv_y_target}
 
-        # create adv_saliency set, using x_train data and jsma_params containing adv_y_target
-        adv_saliency = jsma.generate(x_train_saliency, jsma_params)
-        preds_saliency_adv = model_saliency(adv_saliency)
+        # create adv_saliency set tensor, using x_train data and jsma_params containing adv_y_target
+        adv_jsma = jsma3.generate(x, jsma_params)
+        # create adv preds tensor
+        preds_jsma_adv = model_3(adv_jsma)
+
+        # define saliency training model accuracy
+        def evaluate_saliency():
+            # Accuracy of adversarially trained model on legitimate test inputs
+            eval_params = {'batch_size': batch_size}
+            accuracy = model_eval(sess, x, y, preds_2, X_test, Y_test,
+                                  args=eval_params)
+            print('Test accuracy on legitimate examples: %0.4f' % accuracy)
+            report.adv_train_clean_eval = accuracy
+
+            # Accuracy of the adversarially trained model on adversarial examples
+            accuracy = model_eval(sess, x, y, preds_2_adv, X_test,
+                                  Y_test, args=eval_params)
+            print('Test accuracy on adversarial examples: %0.4f' % accuracy)
+            report.adv_train_adv_eval = accuracy
+
+        ###########################################################################
+        # MODEL Train for Saliency Map
+        ###########################################################################
+        # Perform and evaluate adversarial training with FSGM MODEL!!!
+        model_train(sess, x, y, model_3, x_train_saliency, y_train_saliency,
+                    predictions_adv=preds_jsma_adv, evaluate=evaluate_saliency(),
+                    args=train_params, rng=rng)
+
 
 
     # Redefine TF model FGSM!!!
