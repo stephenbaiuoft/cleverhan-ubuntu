@@ -124,7 +124,7 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
         # graph
         fgsm = FastGradientMethod(model, sess=sess)
 
-        # todo: follow the paper and run Cleverhans Output?
+        # todo: follow the paper and run FGSM Output?
         fgsm_params_y = {'eps': 0.3,
                          'y': y,
                        'clip_min': 0.,
@@ -132,11 +132,11 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
 
         #adv_x = fgsm.generate(x, **fgsm_params)
         adv_x = fgsm.generate(x, **fgsm_params_y)
-        print("the shape of adv_x is: ", tf.shape(adv_x))
-
+        #print("the shape of adv_x is: ", tf.shape(adv_x))
+        # Here u r essentially just computing the adversarial accurancy now
         preds_adv = model.get_probs(adv_x)
 
-        print("the shape of preds_adv is: ", tf.shape(preds_adv))
+        #print("the shape of preds_adv is: ", tf.shape(preds_adv))
 
         # Evaluate the accuracy of the MNIST model on adversarial examples
         eval_par = {'batch_size': batch_size}
@@ -152,6 +152,11 @@ def mnist_tutorial(train_start=0, train_end=60000, test_start=0,
             report.train_clean_train_adv_eval = acc
 
         print("Repeating the process, using adversarial training")
+
+    #############################################################
+    # FGSM Adversarial Training
+    #############################################################
+
     # Redefine TF model graph
     model_2 = make_basic_cnn(nb_filters=nb_filters)
     preds_2 = model_2(x)

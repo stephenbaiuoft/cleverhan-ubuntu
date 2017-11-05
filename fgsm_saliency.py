@@ -94,6 +94,9 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
     x = tf.placeholder(tf.float32, shape=(None, 28, 28, 1))
     y = tf.placeholder(tf.float32, shape=(None, 10))
 
+    # placeholder for y_target --> for saliency tensor
+    y_target = tf.placeholder(tf.float32, shape=(None, 10))
+
     model_path = "models/mnist"
     # Train an MNIST model
     train_params = {
@@ -174,8 +177,6 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
                              Y_train, args=eval_par)
             report.train_clean_train_adv_eval = acc
 
-        print("Repeating the process, using FGSM adversarial training")
-
         ###########################################################################
         # Generate Saliency Map Adversarial Example and
         # Compute base model accuracy (only 10)
@@ -210,25 +211,26 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
         for sample_ind in xrange(0, source_samples):
             print('--------------------------------------')
             print('Saliency Attacking input %i/%i' % (sample_ind + 1, source_samples))
-            sample = X_test[sample_ind:(sample_ind + 1)]
+            sample = X_train[sample_ind:(sample_ind + 1)]
+            y_sample = Y_train[sample_ind:(sample_ind + 1)]
 
-            current_class = int(np.argmax(Y_test[sample_ind]))
+            current_class = int(np.argmax(Y_train[sample_ind]))
             target_classes = other_classes(nb_classes, current_class)
-
-            # Create x_train_saliency
-            if x_train_saliency is not None:
-                xtmp = np.tile(sample, source_samples - 1)
-                x_train_saliency = np.stack((x_train_saliency, xtmp))
-
-                ytmp = np.tile(Y_test[sample_ind], source_samples - 1)
-                y_train_saliency = np.stack((y_train_saliency), ytmp)
-            else:
-                x_train_saliency = np.tile(sample, source_samples - 1)
-                y_train_saliency = np.tile(Y_test[sample_ind], source_samples - 1)
 
             # Loop over all target classes
             for target in target_classes:
                 print('Generating adv. example for target class %i' % target)
+
+                # Create x_train_saliency, corresponding to y_train_saliency
+                if x_train_saliency is not None:
+                    x_train_saliency = np.concatenate((x_train_saliency, sample), axis=0)
+                    y_train_saliency = np.concatenate((y_train_saliency, y_sample), axis=0)
+                else:
+                    x_train_saliency = sample
+                    y_train_saliency = y_sample
+                    print("sample shape: ", x_train_saliency.shape)
+                    print("y_sample shape: ", y_train_saliency.shape)
+
 
                 # This call runs the Jacobian-based saliency map approach
                 one_hot_target = np.zeros((1, nb_classes), dtype=np.float32)
@@ -239,11 +241,13 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
 
                 # Add to adv_x_set, correct_y_set
                 if adv_x_set is not None:
-                    adv_y_target = np.stack(adv_y_target, one_hot_target)
-                    adv_x_set = np.stack((adv_x_np, adv_x_set))
+                    adv_y_target = np.concatenate((adv_y_target, one_hot_target), axis=0)
+                    adv_x_set = np.concatenate((adv_x_np, adv_x_set), axis=0)
                 else:
                     adv_y_target = one_hot_target
                     adv_x_set = adv_x_np
+                    print("adv_y_target shape(one-hot-encoding): ", adv_y_target.shape)
+                    print("adv_x_set(np) shape: ", adv_x_np.shape)
 
                 # Check if success was achieved
                 res = int(model_argmax(sess, x, preds, adv_x_np) == target)
@@ -260,6 +264,7 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
 
         # here we have successfully stacked up x_adversarial_set, y_correct_set
         # these can be used to provide training to our model now
+        print("\n\n\n*****************************")
         print("Checking x_adv_set shape: ", adv_x_set.shape)
         print("Checking correct_y_set shape: ", adv_y_target.shape)
 
@@ -275,7 +280,7 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
 
         jsma_params = {'theta': 1., 'gamma': 0.1,
                        'clip_min': 0., 'clip_max': 1.,
-                       'y_target': adv_y_target}
+                       'y_target': y_target}
 
         # create adv_saliency set tensor, using x_train data and jsma_params containing adv_y_target
         adv_jsma = jsma3.generate(x, jsma_params)
