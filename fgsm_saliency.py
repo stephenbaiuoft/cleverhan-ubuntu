@@ -34,7 +34,7 @@ FLAGS = flags.FLAGS
 # keep train_end same as source_samples
 # since both models are donig the same for now
 # epoch set to 2
-def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
+def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
                    test_end=5, nb_epochs=2, batch_size=128,
                    learning_rate=0.001,
                    clean_train=True,
@@ -102,18 +102,27 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
         'batch_size': batch_size,
         'learning_rate': learning_rate
     }
-    fgsm_params = {'eps': 0.3,
-                   'clip_min': 0.,
-                   'clip_max': 1.}
     rng = np.random.RandomState([2017, 8, 30])
 
 
     ###########################################################################
     # Training the CNN model using TensorFlow: model --> base model
     ###########################################################################
+    # model for clean training
     model = make_basic_cnn(nb_filters=nb_filters)
     preds = model.get_probs(x)
 
+    # model for fgsm method
+    model_fgsm = make_basic_cnn(nb_filters=nb_filters)
+    preds_fgsm = model.get_probs(x)
+
+    # model for jocabian method
+    model_jsma = make_basic_cnn(nb_filters=nb_filters)
+    preds_jsma = model.get_probs(x)
+
+    # model_of f and j
+    model_f_j = make_basic_cnn(nb_filters=nb_filters)
+    preds_f_j = model.get_probs(x)
 
     if clean_train:
         # omg -> creates a cnn model
@@ -143,194 +152,137 @@ def minist_fgsm_saliency(train_start=0, train_end=10, test_start=0,
                 sess, x, y, preds, X_train, Y_train, args=eval_params)
             report.train_clean_train_clean_eval = acc
 
-
-        ###########################################################################
-        # Generate FGSM Adversarial based on model, and
-        # Compute Base Model Accuracy
-        ###########################################################################
-
-        # Initialize the Fast Gradient Sign Method (FGSM) attack object and
-        # graph
-        fgsm = FastGradientMethod(model, sess=sess)
-
-        # todo: follow the paper and run Cleverhans Output?
-        fgsm_params_y = {'eps': 0.3,
-                         'y': y,
-                       'clip_min': 0.,
-                       'clip_max': 1.}
-
-        #adv_x = fgsm.generate(x, **fgsm_params)
-        adv_x = fgsm.generate(x, **fgsm_params_y)
-        preds_adv = model.get_probs(adv_x)
-        # Evaluate the accuracy of the MNIST model on adversarial examples
-        eval_par = {'batch_size': batch_size}
-        acc = model_eval(sess, x, y, preds_adv, X_test, Y_test, args=eval_par)
-        print('Test accuracy on FGSM adversarial examples: %0.4f\n' % acc)
-        report.clean_train_adv_eval = acc
-
-        # Calculate training error
-        if testing:
-            eval_par = {'batch_size': batch_size}
-            acc = model_eval(sess, x, y, preds_adv, X_train,
-                             Y_train, args=eval_par)
-            report.train_clean_train_adv_eval = acc
-
-        ###########################################################################
-        # Generate Saliency Map Adversarial Example and
-        # Compute base model accuracy (only 10)
-        ###########################################################################
-        print("Saliency Map Attack On The Base Model")
-        print('Crafting ' + str(source_samples) + ' * ' + str(nb_classes - 1) +
-              ' adversarial examples')
-
-        # Instantiate a SaliencyMapMethod attack object --> modify y_target for each test_data again
-        jsma = SaliencyMapMethod(model, back='tf', sess=sess)
-        # jsma_params_for generate_np and generate!
-        jsma_params = {'theta': 1., 'gamma': 0.1,
-                       'clip_min': 0., 'clip_max': 1.,
-                       'y_target': None}
-
-
-        # now construct model 3, => for jsma training
-        model_3 = make_basic_cnn(nb_filters=nb_filters)
-        # define the x, the placeholder input - > preds_3 output
-        # preds_3 relationship only needs to be defined once!!!
-        preds_3 = model_3(x)
-
-        # ==> because each time only 1 adversarial example
-        train_params_jsma = {
-            'nb_epochs': 1,
-            'batch_size': 1,
-            'learning_rate': learning_rate
-        }
-
-        # Keep track of success (adversarial example classified in target)
-        # Need this info to compute the success rate
-        results = np.zeros((nb_classes, source_samples), dtype='i')
-
-        for sample_ind in xrange(0, source_samples):
-            print('--------------------------------------')
-            print('Saliency Attacking input %i/%i' % (sample_ind + 1, source_samples))
-            sample = X_train[sample_ind:(sample_ind + 1)]
-
-            current_class = int(np.argmax(Y_train[sample_ind]))
-            target_classes = other_classes(nb_classes, current_class)
-
-            # Loop over all target classes
-            for target in target_classes:
-                print('Generating adv. example for target class %i' % target)
-
-                # This call runs the Jacobian-based saliency map approach
-                one_hot_target = np.zeros((1, nb_classes), dtype=np.float32)
-                one_hot_target[0, target] = 1
-                jsma_params['y_target'] = one_hot_target
-                adv_x_np = jsma.generate_np(sample, **jsma_params)
-
-                # Check if success was achieved
-                res = int(model_argmax(sess, x, preds, adv_x_np) == target)
-
-                # Update the arrays for later analysis
-                results[target, sample_ind] = res
-
-
-                # create adv_saliency set tensor, using x_train data and jsma_params containing adv_y_target
-                adv_jsma_x_targeted = jsma.generate(x, **jsma_params)
-                # create adv preds tensor
-                adv_jsma_y_targeted = model_3(adv_jsma_x_targeted)
-                ###########################################################################
-                # MODEL Train for Saliency Map Per Data Example --> go to model
-                ###########################################################################
-                # Perform and evaluate adversarial training with JSMA model
-                model_train(sess, x, y, preds_3, X_train, Y_train,
-                            predictions_adv=adv_jsma_y_targeted,
-                            args=train_params_jsma, rng=rng)
-
-        print('--------------------------------------')
-        # Compute the number of adversarial examples that were successfully found
-        nb_targets_tried = ((nb_classes - 1) * source_samples)
-        succ_rate = float(np.sum(results)) / nb_targets_tried
-        print('Avg. rate of successful Saliency adv. examples {0:.4f}'.format(succ_rate))
-        report.clean_train_adv_eval = 1. - succ_rate
-
-
-        # set y_target to None for test data set
-        # jsma => randomly choose a class to perform jsma
-        jsma_params['y_target'] = None
-        adv_jsma_x_default = jsma.generate(x, **jsma_params)
-        adv_prevs_y = model_3.get_probs(adv_jsma_x_default)
-
-        # training per jsma adversarial example ==> after the iteration!
-        def evaluate_3():
-            # Accuracy of adversarially trained model on legitimate test inputs
-            eval_params = {'batch_size': batch_size}
-            accuracy = model_eval(sess, x, y, preds_3, X_test, Y_test,
-                                  args=eval_params)
-            print('JSMA Trained: Test accuracy on legitimate examples: %0.4f' % accuracy)
-            report.adv_train_clean_eval = accuracy
-
-            # Accuracy of the adversarially trained model on adversarial examples
-            accuracy = model_eval(sess, x, y, adv_prevs_y, X_test,
-                                  Y_test, args=eval_params)
-            print('JSMA Trained: Test accuracy on adversarial examples: %0.4f' % accuracy)
-            report.adv_train_adv_eval = accuracy
-
-        print("****************Evaluating JSMA on X_Test Data Set**********************")
-        evaluate_3()
-
-
-    # Redefine TF model FGSM!!!
-    model_2 = make_basic_cnn(nb_filters=nb_filters)
-    preds_2 = model_2(x)
-    fgsm2 = FastGradientMethod(model_2, sess=sess)
-
-    # parameter for FGSM
+    ###########################################################################
+    # Generate FGSM Adversarial based on model, and
+    # Attack Base Model Accuracy
+    ###########################################################################
+    fgsm_only = FastGradientMethod(model_fgsm, sess=sess)
     fgsm_params_y = {'eps': 0.3,
                      'y': y,
-                     'clip_min': 0.,
-                     'clip_max': 1.}
-    adv_x_2 = fgsm2.generate(x, **fgsm_params_y)
-    if not backprop_through_attack:
-        # For the fgsm attack used in this tutorial, the attack has zero
-        # gradient so enabling this flag does not change the gradient.
-        # For some other attacks, enabling this flag increases the cost of
-        # training, but gives the defender the ability to anticipate how
-        # the atacker will change their strategy in response to updates to
-        # the defender's parameters.
-        adv_x_2 = tf.stop_gradient(adv_x_2)
-    preds_2_adv = model_2(adv_x_2)
+                   'clip_min': 0.,
+                   'clip_max': 1.}
 
-    def evaluate_2():
+    adv_fgsm_only_x = fgsm_only.generate(x, **fgsm_params_y)
+    preds_adv_fgsm_only = model_fgsm.get_probs(adv_fgsm_only_x)
+
+    # Evaluate the accuracy of the MNIST model on adversarial examples
+    eval_par = {'batch_size': batch_size}
+    acc = model_eval(sess, x, y, preds_adv_fgsm_only, X_test, Y_test, args=eval_par)
+    print('Test accuracy on FGSM [Before Training]: %0.4f\n' % acc)
+
+    ###########################################################################
+    # model_fgsm Training & Evaluation
+    ###########################################################################
+
+    def evaluate_fgsm():
         # Accuracy of adversarially trained model on legitimate test inputs
         eval_params = {'batch_size': batch_size}
-        accuracy = model_eval(sess, x, y, preds_2, X_test, Y_test,
+        accuracy = model_eval(sess, x, y, preds_fgsm, X_test, Y_test,
                               args=eval_params)
         print('Test accuracy on legitimate examples: %0.4f' % accuracy)
-        report.adv_train_clean_eval = accuracy
 
         # Accuracy of the adversarially trained model on adversarial examples
-        accuracy = model_eval(sess, x, y, preds_2_adv, X_test,
+        accuracy = model_eval(sess, x, y, preds_adv_fgsm_only, X_test,
                               Y_test, args=eval_params)
         print('Test accuracy on adversarial examples: %0.4f' % accuracy)
-        report.adv_train_adv_eval = accuracy
+
+    # Perform and evaluate adversarial training FGSM
+    model_train(sess, x, y, preds_fgsm, X_train, Y_train,
+                predictions_adv=preds_adv_fgsm_only,evaluate=evaluate_fgsm,
+                args=train_params, rng=rng)
+
+    #********************************SEPERATOR********************************#
+    ###########################################################################
+    # Generate JSMA Adversarial based on model, and
+    # Attack Base Model Accuracy
+    ###########################################################################
+    # Instantiate a SaliencyMapMethod attack object
+    jsma_only = SaliencyMapMethod(model_jsma, back='tf', sess=sess)
+    # jsma_params, let target be randomly chosen
+    jsma_params = {'theta': 1., 'gamma': 0.1,
+                   'clip_min': 0., 'clip_max': 1.,
+                   'y_target': None}
+
+    # create adv_saliency set tensor, using x_train data and jsma_params containing adv_y_target
+    adv_jsma_only_x = jsma_only.generate(x, **jsma_params)
+    # create adv preds tensor
+    preds_adv_jsma_only = model.get_probs(adv_jsma_only_x)
+
 
     ###########################################################################
-    # MODEL Train for FGSM
+    # model_JSMA Training
     ###########################################################################
-    # Perform and evaluate adversarial training with FSGM MODEL!!!
-    model_train(sess, x, y, preds_2, X_train, Y_train,
-                predictions_adv=preds_2_adv, evaluate=evaluate_2,
+    def evaluate_jsma():
+        # Accuracy of adversarially trained model on legitimate test inputs
+        eval_params = {'batch_size': batch_size}
+        accuracy = model_eval(sess, x, y, preds_jsma, X_test, Y_test,
+                              args=eval_params)
+        print('Test accuracy on legitimate examples: %0.4f' % accuracy)
+
+        # Accuracy of the adversarially trained model on adversarial examples
+        accuracy = model_eval(sess, x, y, preds_adv_jsma_only, X_test,
+                              Y_test, args=eval_params)
+        print('Test accuracy on adversarial examples: %0.4f' % accuracy)
+
+    # Perform and evaluate adversarial training FGSM
+    model_train(sess, x, y, preds, X_train, Y_train,
+                predictions_adv=preds_adv_jsma_only,
+                evaluate=evaluate_jsma,
                 args=train_params, rng=rng)
 
 
-    # Calculate training errors
-    if testing:
-        eval_params = {'batch_size': batch_size}
-        accuracy = model_eval(sess, x, y, preds_2, X_train, Y_train,
-                              args=eval_params)
-        report.train_adv_train_clean_eval = accuracy
-        accuracy = model_eval(sess, x, y, preds_2_adv, X_train,
-                              Y_train, args=eval_params)
-        report.train_adv_train_adv_eval = accuracy
+    #***************************SEPERATOR*************************************#
+    ###########################################################################
+    # model_f_j based on model, and
+    ###########################################################################
+    # Initialize the Fast Gradient Sign Method (FGSM) attack MODEL_F_J
+    fgsm = FastGradientMethod(model_f_j, sess=sess)
+    fgsm_params_y = {'eps': 0.3,
+                     'y': y,
+                   'clip_min': 0.,
+                   'clip_max': 1.}
+
+    adv_fgsm_x = fgsm.generate(x, **fgsm_params_y)
+    preds_adv_fgsm = model_f_j.get_probs(adv_fgsm_x)
+
+    # Instantiate a SaliencyMapMethod attack object --> modify y_target for each test_data again
+    jsma = SaliencyMapMethod(model_f_j, back='tf', sess=sess)
+    # jsma_params, let target be randomly chosen
+    jsma_params = {'theta': 1., 'gamma': 0.1,
+                   'clip_min': 0., 'clip_max': 1.,
+                   'y_target': None}
+
+    # create adv_saliency set tensor, using x_train data and jsma_params containing adv_y_target
+    adv_jsma_x = jsma.generate(x, **jsma_params)
+    # create adv preds tensor
+    preds_adv_jsma = model_f_j.get_probs(adv_jsma_x)
+
+
+    ###########################################################################
+    # model_f_j training
+    ###########################################################################
+    # Perform and evaluate adversarial training FGSM
+    model_train(sess, x, y, preds_f_j, X_train, Y_train,
+                predictions_adv=preds_adv_fgsm,
+                args=train_params, rng=rng)
+
+    # Perform and evaluate adversarial training on JSMA
+    model_train(sess, x, y, preds_f_j, X_train, Y_train,
+                predictions_adv=preds_adv_jsma,
+                args=train_params, rng=rng)
+
+    # Calculate test error for combined model
+    eval_par = {'batch_size': batch_size}
+    acc_clean = model_eval(sess, x, y, preds_f_j, X_test,
+                     Y_test, args=eval_par)
+    print("accuracy on clean test examples: ", acc_clean)
+    acc_fgsm = model_eval(sess, x, y, preds_adv_fgsm, X_test,
+                     Y_test, args=eval_par)
+    print("accuracy on FGSM adversarial test examples: ", acc_fgsm)
+    acc_jsma = model_eval(sess, x, y, preds_adv_jsma, X_test,
+                     Y_test, args=eval_par)
+    print("accuracy on JSMA adversarial test examples: ", acc_jsma)
+    print("Overall Accuracy Combined: ", (acc_clean + acc_fgsm + acc_jsma)/3 )
 
     return report
 
@@ -347,13 +299,14 @@ def main(argv=None):
 
 if __name__ == '__main__':
     flags.DEFINE_integer('nb_filters', 64, 'Model size multiplier')
-    flags.DEFINE_integer('nb_epochs', 6, 'Number of epochs to train model')
-    flags.DEFINE_integer('batch_size', 128, 'Size of training batches')
+    flags.DEFINE_integer('nb_epochs', 2, 'Number of epochs to train model')
+    flags.DEFINE_integer('batch_size', 10, 'Size of training batches')
     flags.DEFINE_float('learning_rate', 0.001, 'Learning rate for training')
     flags.DEFINE_bool('clean_train', True, 'Train on clean examples')
     flags.DEFINE_bool('backprop_through_attack', False,
                       ('If True, backprop through adversarial example '
                        'construction process during adversarial training'))
 
+    # quick wrapper handles flag parsing and dispatches the main if defined
     tf.app.run()
     print("Tutorial Finished Running")
