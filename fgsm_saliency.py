@@ -25,6 +25,8 @@ from cleverhans.attacks import SaliencyMapMethod
 from six.moves import xrange
 from cleverhans.utils import other_classes, set_log_level
 from cleverhans.utils_tf import model_train, model_eval, model_argmax
+import timeit
+
 
 import os
 
@@ -65,6 +67,13 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
     :return: an AccuracyReport object
     """
 
+    fout = open("saliency_map_summary.txt", "w+")
+    ftime = open("timeer.txt", "w+")
+    start = timeit.timeit()
+    fout.write("starting running the overall script now\n\n\n")
+    ftime.write("starting running the overall script now\n\n\n")
+
+
     # Object used to keep track of (and return) key accuracies
     report = AccuracyReport()
 
@@ -72,7 +81,7 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
     tf.set_random_seed(1234)
 
     # Set logging level to see debug information
-    set_log_level(logging.DEBUG)
+    # set_log_level(logging.DEBUG)
 
     # Create TF session
     sess = tf.Session()
@@ -108,6 +117,14 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
     ###########################################################################
     # Training the CNN model using TensorFlow: model --> base model
     ###########################################################################
+    jsma_params = {'theta': 1., 'gamma': 0.1,
+                   'clip_min': 0., 'clip_max': 1.,
+                   'y_target': None}
+
+    fgsm_params = {'eps': 0.3,
+                   'clip_min': 0.,
+                   'clip_max': 1.}
+
     # model for clean training
     model = make_basic_cnn(nb_filters=nb_filters)
     preds = model.get_probs(x)
@@ -124,33 +141,41 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
     model_f_j = make_basic_cnn(nb_filters=nb_filters)
     preds_f_j = model.get_probs(x)
 
-    if clean_train:
-        # omg -> creates a cnn model
-        # model = make_basic_cnn(nb_filters=nb_filters)
-        # preds = model.get_probs(x)
-        def evaluate():
-            # Evaluate the accuracy of the MNIST model on legitimate test
-            # examples
-            eval_params = {'batch_size': batch_size}
-            acc = model_eval(
-                sess, x, y, preds, X_test, Y_test, args=eval_params)
-            report.clean_train_clean_eval = acc
-            assert X_test.shape[0] == test_end - test_start, X_test.shape
-            print('Test accuracy on legitimate examples: %0.4f' % acc)
 
-        ###########################################################################
-        # MODEL Train!!!!!!!!!!!!
-        ###########################################################################
-        # training the basic model, using train_params
-        model_train(sess, x, y, preds, X_train, Y_train, evaluate=evaluate,
-                    args=train_params, rng=rng)
+    ###########################################################################
+    # Clean Train ONLY!!
+    ###########################################################################
+    # model = make_basic_cnn(nb_filters=nb_filters)
+    # preds = model.get_probs(x)
+    def evaluate():
+        # Evaluate the accuracy of the MNIST model on legitimate test
+        # examples
+        eval_params = {'batch_size': batch_size}
+        acc = model_eval(
+            sess, x, y, preds, X_test, Y_test, args=eval_params)
+        # report.clean_train_clean_eval = acc
+        assert X_test.shape[0] == test_end - test_start, X_test.shape
+        print('Clean Train: Test accuracy on legitimate examples: %0.4f' % acc)
 
-        # Calculate training error
-        if testing:
-            eval_params = {'batch_size': batch_size}
-            acc = model_eval(
-                sess, x, y, preds, X_train, Y_train, args=eval_params)
-            report.train_clean_train_clean_eval = acc
+    ###########################################################################
+    # MODEL Train!!!!!!!!!!!!
+    ###########################################################################
+    # training the basic model, using train_params
+
+
+    model_train(sess, x, y, preds, X_train, Y_train, evaluate=evaluate,
+                args=train_params, rng=rng)
+
+    dur = timeit.timeit() - start
+    start = timeit.timeit()
+    ftime.write("\nBase Model Training Took: " + str(dur))
+
+    # Calculate training error
+    if testing:
+        eval_params = {'batch_size': batch_size}
+        acc = model_eval(
+            sess, x, y, preds, X_train, Y_train, args=eval_params)
+            #report.train_clean_train_clean_eval = acc
 
     ###########################################################################
     # Generate FGSM Adversarial based on model, and
@@ -165,10 +190,17 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
     adv_fgsm_only_x = fgsm_only.generate(x, **fgsm_params_y)
     preds_adv_fgsm_only = model_fgsm.get_probs(adv_fgsm_only_x)
 
+    #jsma adversarial generating targeting fgsm trained model
+    attack = SaliencyMapMethod(model_fgsm, back='tf', sess=sess)
+    adv_x2 = attack.generate(x, **jsma_params)
+    preds_adv_jsma_attack = model_fgsm.get_probs(adv_x2)
+
     # Evaluate the accuracy of the MNIST model on adversarial examples
-    eval_par = {'batch_size': batch_size}
-    acc = model_eval(sess, x, y, preds_adv_fgsm_only, X_test, Y_test, args=eval_par)
-    print('Test accuracy on FGSM [Before Training]: %0.4f\n' % acc)
+    # on 1250 examples for evaluation
+    eval_par1 = {'batch_size': batch_size*10}
+    acc = model_eval(sess, x, y, preds_adv_fgsm_only, X_test, Y_test, args=eval_par1)
+    print('Test accuracy on FGSM Attack [Before Training]: %0.4f\n' % acc)
+    fout.write("\nTest accuracy on FGSM Attack [Before Training]: " + str(acc))
 
     ###########################################################################
     # model_fgsm Training & Evaluation
@@ -179,17 +211,29 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
         eval_params = {'batch_size': batch_size}
         accuracy = model_eval(sess, x, y, preds_fgsm, X_test, Y_test,
                               args=eval_params)
-        print('Test accuracy on legitimate examples: %0.4f' % accuracy)
+        print('FGSM_Trained: Clean Data)Test accuracy: %0.4f' % accuracy)
+        fout.write('\nFGSM_Trained Per Batch: Clean Data)Test accuracy: ' + str(accuracy))
 
         # Accuracy of the adversarially trained model on adversarial examples
         accuracy = model_eval(sess, x, y, preds_adv_fgsm_only, X_test,
                               Y_test, args=eval_params)
-        print('Test accuracy on adversarial examples: %0.4f' % accuracy)
+        print('(FGSM_Trained: FGSM Data)Test accuracy: %0.4f' % accuracy)
+        fout.write('\nFGSM_Trained Per Batch: FGSM Data)Test accuracy: ' + str(accuracy))
 
+        # Accuracy of the adversarially trained model on adversarial examples
+        accuracy = model_eval(sess, x, y, preds_adv_jsma_attack, X_test,
+                              Y_test, args=eval_params)
+        print('(FGSM_Trained: JSMA Adversarial)Test accuracy: %0.4f' % accuracy)
+        fout.write('\nFGSM_Trained Per Batch: JSMA Adversarial)Test accuracy: ' + str(accuracy))
+
+    start = timeit.timeiit()
     # Perform and evaluate adversarial training FGSM
     model_train(sess, x, y, preds_fgsm, X_train, Y_train,
                 predictions_adv=preds_adv_fgsm_only,evaluate=evaluate_fgsm,
                 args=train_params, rng=rng)
+
+    dur = timeit.timeit() - start
+    ftime.write("\nFGSM Model Training Took: " + str(dur))
 
     #********************************SEPERATOR********************************#
     ###########################################################################
@@ -208,6 +252,18 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
     # create adv preds tensor
     preds_adv_jsma_only = model.get_probs(adv_jsma_only_x)
 
+    # Evaluate the accuracy of the MNIST model on JSMA adversarial examples
+    # on 1250 examples for evaluation
+    eval_par1 = {'batch_size': batch_size*10}
+    acc = model_eval(sess, x, y, preds_adv_jsma_only, X_test, Y_test, args=eval_par1)
+    print('Test accuracy on JSMA Attack [Before Training]: %0.4f\n' % acc)
+    fout.write("\nTest accuracy on JSMA Attack [Before Training]: " + str(acc))
+
+    #jsma adversarial generating targeting fgsm trained model
+    attack = FastGradientMethod(model_jsma, sess=sess)
+    adv_x2 = attack.generate(x, **fgsm_params)
+    preds_adv_fgsm_attack = model_fgsm.get_probs(adv_x2)
+
 
     ###########################################################################
     # model_JSMA Training
@@ -217,19 +273,30 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
         eval_params = {'batch_size': batch_size}
         accuracy = model_eval(sess, x, y, preds_jsma, X_test, Y_test,
                               args=eval_params)
-        print('Test accuracy on legitimate examples: %0.4f' % accuracy)
+        print('[JSMA_Trained: Clean Data]Test accuracy: %0.4f' % accuracy)
+        fout.write("\n[JSMA_Trained: Clean Data]Test accuracy: " + str(accuracy))
 
         # Accuracy of the adversarially trained model on adversarial examples
         accuracy = model_eval(sess, x, y, preds_adv_jsma_only, X_test,
                               Y_test, args=eval_params)
-        print('Test accuracy on adversarial examples: %0.4f' % accuracy)
+        print('[JSMA_Trained: JSMA Adversarial] Test accuracy: %0.4f' % accuracy)
+        fout.write("\n[JSMA_Trained: JSMA Adversarial]Test accuracy: " + str(accuracy))
 
+        # Accuracy of the adversarially trained model on FGSM examples
+        accuracy = model_eval(sess, x, y, preds_adv_fgsm_attack, X_test,
+                              Y_test, args=eval_params)
+        print('[JSMA_Trained: FGSM Adversarial] Test accuracy: %0.4f' % accuracy)
+        fout.write("\n[JSMA_Trained: FGSM Adversarial]Test accuracy: " + str(accuracy))
+
+    start = timeit.timeit()
     # Perform and evaluate adversarial training FGSM
     model_train(sess, x, y, preds, X_train, Y_train,
                 predictions_adv=preds_adv_jsma_only,
                 evaluate=evaluate_jsma,
                 args=train_params, rng=rng)
 
+    dur = timeit.timeit() - start
+    ftime.write("\nJSMA Model Training Took: " + str(dur))
 
     #***************************SEPERATOR*************************************#
     ###########################################################################
@@ -261,6 +328,7 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
     ###########################################################################
     # model_f_j training
     ###########################################################################
+    start = timeit.timeit()
     # Perform and evaluate adversarial training FGSM
     model_train(sess, x, y, preds_f_j, X_train, Y_train,
                 predictions_adv=preds_adv_fgsm,
@@ -271,18 +339,34 @@ def minist_fgsm_saliency(train_start=0, train_end=20, test_start=0,
                 predictions_adv=preds_adv_jsma,
                 args=train_params, rng=rng)
 
+    dur = timeit.timeit() - start
+    ftime.write("\nCombined Model Training Took: " + str(dur))
+
     # Calculate test error for combined model
-    eval_par = {'batch_size': batch_size}
+    eval_par2 = {'batch_size': batch_size *10}
     acc_clean = model_eval(sess, x, y, preds_f_j, X_test,
-                     Y_test, args=eval_par)
+                     Y_test, args=eval_par2)
     print("accuracy on clean test examples: ", acc_clean)
+    fout.write("\n[Combined Model]accuracy on clean test examples: " + str(acc_clean))
+
     acc_fgsm = model_eval(sess, x, y, preds_adv_fgsm, X_test,
-                     Y_test, args=eval_par)
+                     Y_test, args=eval_par2)
     print("accuracy on FGSM adversarial test examples: ", acc_fgsm)
+    fout.write("\n[Combined Model]accuracy on FGSM adversarial test examples: " + str(acc_fgsm))
+
+
+
     acc_jsma = model_eval(sess, x, y, preds_adv_jsma, X_test,
-                     Y_test, args=eval_par)
+                     Y_test, args=eval_par2)
     print("accuracy on JSMA adversarial test examples: ", acc_jsma)
+    fout.write("\n[Combined Model]accuracy on JSMA adversarial test examples: " + str(acc_jsma))
+
+
     print("Overall Accuracy Combined: ", (acc_clean + acc_fgsm + acc_jsma)/3 )
+    fout.write("\n\n\nOverall Accuracy Combined: " + str( (acc_clean + acc_fgsm + acc_jsma)/3))
+
+    fout.close()
+    ftime.close()
 
     return report
 
@@ -294,18 +378,28 @@ def main(argv=None):
                    learning_rate=FLAGS.learning_rate,
                    clean_train=FLAGS.clean_train,
                    backprop_through_attack=FLAGS.backprop_through_attack,
-                   nb_filters=FLAGS.nb_filters)
+                   nb_filters=FLAGS.nb_filters,
+                   train_start=FLAGS.train_start,
+                   train_end=FLAGS.train_end,
+                   test_start=FLAGS.test_start,
+                   test_end=FLAGS.test_end
+                         )
 
 
 if __name__ == '__main__':
+
     flags.DEFINE_integer('nb_filters', 64, 'Model size multiplier')
-    flags.DEFINE_integer('nb_epochs', 2, 'Number of epochs to train model')
-    flags.DEFINE_integer('batch_size', 10, 'Size of training batches')
+    flags.DEFINE_integer('nb_epochs', 4, 'Number of epochs to train model')
+    flags.DEFINE_integer('batch_size', 256, 'Size of training batches')
     flags.DEFINE_float('learning_rate', 0.001, 'Learning rate for training')
     flags.DEFINE_bool('clean_train', True, 'Train on clean examples')
     flags.DEFINE_bool('backprop_through_attack', False,
                       ('If True, backprop through adversarial example '
                        'construction process during adversarial training'))
+    flags.DEFINE_integer('train_start', 0, 'start of MNIST training samples')
+    flags.DEFINE_integer('train_end', 60000, 'end of MNIST training samples')
+    flags.DEFINE_integer('test_start', 0, 'start of MNIST test samples')
+    flags.DEFINE_integer('test_end', 10000, 'end of MNIST test samples')
 
     # quick wrapper handles flag parsing and dispatches the main if defined
     tf.app.run()

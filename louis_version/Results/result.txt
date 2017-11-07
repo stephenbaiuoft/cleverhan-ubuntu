@@ -1,0 +1,28 @@
+**************Combined****************************************
+Before Training
+
+Test accuracy on legitimate examples: 0.7400
+[INFO 2017-11-04 23:22:41,490 cleverhans] Completed model training.
+Test accuracy on FGSM adversarial examples: 0.0200
+
+
+After Training
+
+Test accuracy on legitimate examples: 0.6200
+Test accuracy on FGSM adversarial examples: 0.0800
+
+Test accuracy on JSMA adversarial examples: 0.0400
+
+
+Overall Test Accuracy:  0.246666667362
+
+
+*******************************************************************8
+# Base model
+0.72
+
+# JSMA trained
+Test accuracy on legitimate examples: 0.7000
+
+#Test accuracy on FGSM adversarial examples: 0.0400
+#Test accuracy on SaliencyMapMethod adversarial examples: 0.0800
