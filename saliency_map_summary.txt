@@ -1,0 +1,13 @@
+starting running the overall script now
+
+
+
+[JSMA_Trained: Clean Data]Test accuracy: 0.82
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.0400000011921
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.0850000011921
+[JSMA_Trained: Clean Data]Test accuracy: 0.905000011921
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.045000000447
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.0650000000373
+[JSMA_Trained: Clean Data]Test accuracy: 0.935000009537
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.030000000447
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.065000000149
