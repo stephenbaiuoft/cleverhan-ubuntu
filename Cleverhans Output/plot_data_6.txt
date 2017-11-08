@@ -1,0 +1,48 @@
+[INFO 2017-11-07 21:42:24,146 cleverhans] Epoch 0 took 1.1468160152435303 seconds
+Test accuracy on legitimate examples: 0.8800
+[INFO 2017-11-07 21:42:24,822 cleverhans] Epoch 1 took 0.6220989227294922 seconds
+Test accuracy on legitimate examples: 0.9500
+[INFO 2017-11-07 21:42:25,482 cleverhans] Epoch 2 took 0.6253819465637207 seconds
+Test accuracy on legitimate examples: 0.9800
+[INFO 2017-11-07 21:42:26,141 cleverhans] Epoch 3 took 0.6234402656555176 seconds
+Test accuracy on legitimate examples: 0.9900
+[INFO 2017-11-07 21:42:26,803 cleverhans] Epoch 4 took 0.6258203983306885 seconds
+Test accuracy on legitimate examples: 0.9800
+[INFO 2017-11-07 21:42:27,462 cleverhans] Epoch 5 took 0.6238002777099609 seconds
+[INFO 2017-11-07 21:42:27,498 cleverhans] Completed model training.
+Test accuracy on legitimate examples: 0.9750
+Test accuracy on FGSM adversarial examples: 0.0200
+
+Repeating the process, using adversarial training
+[INFO 2017-11-07 21:42:45,688 cleverhans] Epoch 0 took 1.4728672504425049 seconds
+Test accuracy on legitimate examples: 0.8300
+Test accuracy on FGSM adversarial examples: 0.1800
+Test accuracy on BIM adversarial examples: 0.0300
+[INFO 2017-11-07 21:42:52,511 cleverhans] Epoch 1 took 1.4290950298309326 seconds
+Test accuracy on legitimate examples: 0.9200
+Test accuracy on FGSM adversarial examples: 0.2850
+Test accuracy on BIM adversarial examples: 0.0300
+[INFO 2017-11-07 21:42:59,308 cleverhans] Epoch 2 took 1.429701566696167 seconds
+Test accuracy on legitimate examples: 0.9700
+Test accuracy on FGSM adversarial examples: 0.4100
+Test accuracy on BIM adversarial examples: 0.0300
+[INFO 2017-11-07 21:43:06,029 cleverhans] Epoch 3 took 1.4275579452514648 seconds
+Test accuracy on legitimate examples: 0.9700
+Test accuracy on FGSM adversarial examples: 0.5100
+Test accuracy on BIM adversarial examples: 0.0150
+[INFO 2017-11-07 21:43:12,761 cleverhans] Epoch 4 took 1.4266729354858398 seconds
+Test accuracy on legitimate examples: 0.9750
+Test accuracy on FGSM adversarial examples: 0.6050
+Test accuracy on BIM adversarial examples: 0.0200
+[INFO 2017-11-07 21:43:19,473 cleverhans] Epoch 5 took 1.4330086708068848 seconds
+Test accuracy on legitimate examples: 0.9750
+Test accuracy on FGSM adversarial examples: 0.6900
+Test accuracy on BIM adversarial examples: 0.0250
+[INFO 2017-11-07 21:43:24,748 cleverhans] Completed model training.
+
+legit
+[0.8300,0.9200,0.9700,0.9700,0.9750,0.9750]
+fgsm
+[0.1800,0.2850,0.4100,0.5100,0.6050,0.6900]
+bim
+[0.0300,0.0300, 0.0300,0.0150,0.0200,0.0250]

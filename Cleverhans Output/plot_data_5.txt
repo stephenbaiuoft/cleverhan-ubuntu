@@ -1,0 +1,85 @@
+[INFO 2017-11-07 21:27:44,517 cleverhans] Epoch 0 took 1.1253020763397217 seconds
+Test accuracy on legitimate examples: 0.8800
+[INFO 2017-11-07 21:27:45,193 cleverhans] Epoch 1 took 0.624241828918457 seconds
+Test accuracy on legitimate examples: 0.9500
+[INFO 2017-11-07 21:27:45,853 cleverhans] Epoch 2 took 0.6253156661987305 seconds
+Test accuracy on legitimate examples: 0.9800
+[INFO 2017-11-07 21:27:46,514 cleverhans] Epoch 3 took 0.6250603199005127 seconds
+Test accuracy on legitimate examples: 0.9900
+[INFO 2017-11-07 21:27:47,175 cleverhans] Epoch 4 took 0.6246695518493652 seconds
+Test accuracy on legitimate examples: 0.9800
+[INFO 2017-11-07 21:27:47,834 cleverhans] Epoch 5 took 0.6229290962219238 seconds
+Test accuracy on legitimate examples: 0.9750
+[INFO 2017-11-07 21:27:47,870 cleverhans] Completed model training.
+Test accuracy on FGSM adversarial examples: 0.0250
+
+Test accuracy on Basic Iterative Method adversarial examples: 0.0200
+
+Repeating the process, using adversarial training
+[INFO 2017-11-07 21:28:26,990 cleverhans] Epoch 0 took 1.5050055980682373 seconds
+Test accuracy on legitimate examples: 0.8400
+Test accuracy on FGSM adversarial examples: 0.1300
+Test accuracy on JSMA adversarial examples: 0.0700
+[INFO 2017-11-07 21:28:34,480 cleverhans] Epoch 1 took 1.4307219982147217 seconds
+Test accuracy on legitimate examples: 0.9100
+Test accuracy on FGSM adversarial examples: 0.3050
+Test accuracy on JSMA adversarial examples: 0.0500
+[INFO 2017-11-07 21:28:41,967 cleverhans] Epoch 2 took 1.4272880554199219 seconds
+Test accuracy on legitimate examples: 0.9500
+Test accuracy on FGSM adversarial examples: 0.3600
+Test accuracy on JSMA adversarial examples: 0.0450
+[INFO 2017-11-07 21:28:49,262 cleverhans] Epoch 3 took 1.4243874549865723 seconds
+Test accuracy on legitimate examples: 0.9800
+Test accuracy on FGSM adversarial examples: 0.3950
+Test accuracy on JSMA adversarial examples: 0.0150
+[INFO 2017-11-07 21:28:56,562 cleverhans] Epoch 4 took 1.4253411293029785 seconds
+Test accuracy on legitimate examples: 0.9800
+Test accuracy on FGSM adversarial examples: 0.5850
+Test accuracy on JSMA adversarial examples: 0.0200
+[INFO 2017-11-07 21:29:03,881 cleverhans] Epoch 5 took 1.4285922050476074 seconds
+Test accuracy on legitimate examples: 0.9700
+Test accuracy on FGSM adversarial examples: 0.6300
+[INFO 2017-11-07 21:29:09,767 cleverhans] Completed model training.
+Test accuracy on JSMA adversarial examples: 0.0450
+
+
+
+
+Test accuracy on legitimate examples: 0.7950
+Test accuracy on FGSM adversarial examples: 0.1900
+Test accuracy on JSMA adversarial examples: 0.0750
+
+Test accuracy on legitimate examples: 0.8700
+Test accuracy on FGSM adversarial examples: 0.3450
+Test accuracy on JSMA adversarial examples: 0.1700
+
+Test accuracy on legitimate examples: 0.9450
+Test accuracy on FGSM adversarial examples: 0.3400
+Test accuracy on JSMA adversarial examples: 0.1500
+
+Test accuracy on legitimate examples: 0.9800
+Test accuracy on FGSM adversarial examples: 0.4250
+Test accuracy on JSMA adversarial examples: 0.1700
+
+Test accuracy on legitimate examples: 0.9800
+Test accuracy on FGSM adversarial examples: 0.4300
+Test accuracy on JSMA adversarial examples: 0.1900
+
+Test accuracy on legitimate examples: 0.9750
+Test accuracy on FGSM adversarial examples: 0.4600
+Test accuracy on JSMA adversarial examples: 0.2100
+
+legit
+[0.7950,0.8700,0.9450,0.9800,0.9800,0.9750]
+fgsm
+[0.1900,0.3450, 0.3400,0.4250,0.4300,0.4600]
+bim
+[0.0750,0.1700,0.1500,0.1700,0.1900,0.2100]
+
+
+
+
+[INFO 2017-11-07 21:34:17,845 cleverhans] Completed model training.
+
+
+'Combined FGSM-BIM trained model tested against both'

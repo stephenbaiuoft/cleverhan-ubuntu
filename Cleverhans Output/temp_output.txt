@@ -1,0 +1,105 @@
+starting running the overall script now
+
+
+
+Test accuracy on FGSM Attack [Before Training]: 0.085000000596
+
+FGSM_Trained Per Batch: Clean Data)Test accuracy: 0.829999997616
+FGSM_Trained Per Batch: FGSM Data)Test accuracy: 0.195000008345
+FGSM_Trained Per Batch: JSMA Adversarial)Test accuracy: 0.0500000008941
+
+FGSM_Trained Per Batch: Clean Data)Test accuracy: 0.910000011921
+FGSM_Trained Per Batch: FGSM Data)Test accuracy: 0.295000007153
+FGSM_Trained Per Batch: JSMA Adversarial)Test accuracy: 0.035000000447
+
+FGSM_Trained Per Batch: Clean Data)Test accuracy: 0.950000016689
+FGSM_Trained Per Batch: FGSM Data)Test accuracy: 0.395000004768
+FGSM_Trained Per Batch: JSMA Adversarial)Test accuracy: 0.035000000447
+
+FGSM_Trained Per Batch: Clean Data)Test accuracy: 0.979999997616
+FGSM_Trained Per Batch: FGSM Data)Test accuracy: 0.43500000596
+FGSM_Trained Per Batch: JSMA Adversarial)Test accuracy: 0.040000000149
+
+FGSM_Trained Per Batch: Clean Data)Test accuracy: 0.98
+FGSM_Trained Per Batch: FGSM Data)Test accuracy: 0.500000007153
+FGSM_Trained Per Batch: JSMA Adversarial)Test accuracy: 0.080000000298
+
+FGSM_Trained Per Batch: Clean Data)Test accuracy: 0.975
+FGSM_Trained Per Batch: FGSM Data)Test accuracy: 0.560000014305
+FGSM_Trained Per Batch: JSMA Adversarial)Test accuracy: 0.10000000298
+
+
+clean
+[0.83,0.910, 0.95,0.979,0.98,0.975],
+fgsm
+[0.1950,0.295,0.395 ,0.435,0.5000,0.560]
+jsma
+[0.05,0.035,0.035,0.04,0.08,0.10]
+
+Test accuracy on JSMA Attack [Before Training]: 0.115000000298
+
+
+[JSMA_Trained: Clean Data]Test accuracy: 0.780000009537
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.0750000008941
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.125000000298
+
+[JSMA_Trained: Clean Data]Test accuracy: 0.774999983311
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.080000000596
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.130000004768
+
+[JSMA_Trained: Clean Data]Test accuracy: 0.770000002384
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.120000002384
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.17500000596
+
+[JSMA_Trained: Clean Data]Test accuracy: 0.870000002384
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.1
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.140000002384
+
+[JSMA_Trained: Clean Data]Test accuracy: 0.895000007153
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.070000000596
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.085000000596
+
+[JSMA_Trained: Clean Data]Test accuracy: 0.885000002384
+[JSMA_Trained: JSMA Adversarial]Test accuracy: 0.0900000008941
+[JSMA_Trained: FGSM Adversarial]Test accuracy: 0.100000000596
+
+clean
+[0.780,]
+fgsm
+[]
+jsma
+[0.075]
+
+
+
+accuracy on clean test examples:  0.819999995232
+accuracy on FGSM adversarial test examples:  0.220000001192
+accuracy on JSMA adversarial test examples:  0.0700000008941
+Overall Accuracy Combined:  0.369999999106
+accuracy on clean test examples:  0.944999997616
+accuracy on FGSM adversarial test examples:  0.26
+accuracy on JSMA adversarial test examples:  0.0400000011921
+Overall Accuracy Combined:  0.414999999603
+accuracy on clean test examples:  0.975
+accuracy on FGSM adversarial test examples:  0.37000000596
+accuracy on JSMA adversarial test examples:  0.035000000149
+Overall Accuracy Combined:  0.460000002036
+accuracy on clean test examples:  0.955000016689
+accuracy on FGSM adversarial test examples:  0.545
+accuracy on JSMA adversarial test examples:  0.0800000029802
+Overall Accuracy Combined:  0.526666673223
+accuracy on clean test examples:  0.964999997616
+accuracy on FGSM adversarial test examples:  0.52000000596
+accuracy on JSMA adversarial test examples:  0.085000000596
+Overall Accuracy Combined:  0.523333334724
+accuracy on clean test examples:  0.959999997616
+accuracy on FGSM adversarial test examples:  0.595000009537
+accuracy on JSMA adversarial test examples:  0.125000004172
+Overall Accuracy Combined:  0.560000003775
+
+[Combined Model]accuracy on clean test examples: 0.960000014305
+[Combined Model]accuracy on FGSM adversarial test examples: 0.0550000011921
+[Combined Model]accuracy on JSMA adversarial test examples: 0.075
+
+
+Overall Accuracy Combined: 0.363333338499
